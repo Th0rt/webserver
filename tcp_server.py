@@ -14,25 +14,35 @@ class TcpServer:
             client_socket, address = server_socket.accept()
             print("client connected.")
 
-            msg = client_socket.recv(4096)
+            request = client_socket.recv(4096)
 
             with open("./resource/server/recv.txt", "wb") as f:
-                f.write(msg)
+                f.write(request)
 
             with open(os.path.join(DOCUMENT_ROOT, "send.txt"), "rb") as f:
-                http_header = b"\n".join([
-                    b"HTTP/ 1.1 200 OK",
-                    b"Server: Modoki / 0.1",
-                    b"Date: Thu, 24 Sep 2020 06: 24:35 GMT",
-                    b"Content - Type: text / html",
-                    b"Connection: Close",
-                ])
+                response = HttpResponse(body=f.read())
 
-                msg = http_header + b"\n\n" + f.read()
-
-            client_socket.send(msg)
+            client_socket.send(response.as_bytes())
 
         print("connection closed.")
+
+
+class HttpResponse:
+    def __init__(self, body: b''):
+        self.body = body
+
+    @property
+    def header(self) -> bytes:
+        return b"\n".join([
+            b"HTTP/ 1.1 200 OK",
+            b"Server: Modoki / 0.1",
+            b"Date: Thu, 24 Sep 2020 06: 24:35 GMT",
+            b"Content - Type: text / html",
+            b"Connection: Close",
+        ])
+
+    def as_bytes(self) -> bytes:
+        return self.header + b"\n\n" + self.body
 
 
 if __name__ == "__main__":
