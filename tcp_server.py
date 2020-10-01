@@ -1,5 +1,6 @@
 import socket
 import os
+from datetime import datetime
 
 DOCUMENT_ROOT = "./resource/server"
 
@@ -28,21 +29,49 @@ class TcpServer:
 
 
 class HttpResponse:
-    def __init__(self, body: b''):
+    server_name = "Modoki"
+    server_version = 1
+
+    def __init__(self, body: bytes):
+        self.header = HttpResponseHeader(self.server_name, self.server_version)
         self.body = body
 
+    def as_bytes(self) -> bytes:
+        return self.header.as_bytes() + b"\n\n" + self.body
+
+class HttpResponseHeader:
+    def __init__(self, server_name, server_version):
+        self.server_name = f"{server_name}/{server_version}"
+
     @property
-    def header(self) -> bytes:
-        return b"\n".join([
-            b"HTTP/ 1.1 200 OK",
-            b"Server: Modoki / 0.1",
-            b"Date: Thu, 24 Sep 2020 06: 24:35 GMT",
-            b"Content - Type: text / html",
-            b"Connection: Close",
-        ])
+    def http_method(self) -> str:
+        return "HTTP/1.1"
+
+    @property
+    def status_code(self) -> str:
+        return "200 OK"
+
+    @property
+    def content_type(self) -> str:
+        return "text/html"
+
+    @property
+    def connection(self) -> str:
+        return "Close"
+
+    @property
+    def response_datetime(self) -> str:
+        return datetime.now().strftime("%a, %d %b %Y %H:%M")
 
     def as_bytes(self) -> bytes:
-        return self.header + b"\n\n" + self.body
+        return "\n".join([
+            f"{self.http_method} {self.status_code}",
+            f"Server: {self.server_name}",
+            f"Date: {self.response_datetime} GMT",
+            f"Content-Type: {self.content_type}",
+            f"Connection: {self.connection}",
+        ]).encode("utf-8")
+
 
 
 if __name__ == "__main__":
