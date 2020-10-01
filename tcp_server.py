@@ -93,14 +93,17 @@ class HttpResponseHeader:
     def response_datetime(self) -> str:
         return datetime.now().strftime("%a, %d %b %Y %H:%M:%S")
 
-    def as_bytes(self) -> bytes:
+    def __str__(self) -> str:
         return "\n".join([
             f"{self.http_method} {self.status_code}",
             f"Server: {self.server_name}",
             f"Date: {self.response_datetime} GMT",
             f"Content-Type: {self.content_type}",
             f"Connection: {self.connection}",
-        ]).encode("utf-8")
+        ])
+
+    def as_bytes(self) -> bytes:
+        return str(self).encode("utf-8")
 
 
 if __name__ == "__main__":
