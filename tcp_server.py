@@ -68,6 +68,7 @@ class HttpResponse:
     def as_bytes(self) -> bytes:
         return self.header.as_bytes() + b"\n\n" + self.body
 
+
 class HttpResponseHeader:
     def __init__(self, server_name, server_version):
         self.server_name = f"{server_name}/{server_version}"
@@ -100,7 +101,6 @@ class HttpResponseHeader:
             f"Content-Type: {self.content_type}",
             f"Connection: {self.connection}",
         ]).encode("utf-8")
-
 
 
 if __name__ == "__main__":
