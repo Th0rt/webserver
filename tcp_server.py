@@ -91,7 +91,7 @@ class HttpResponseHeader:
 
     @property
     def response_datetime(self) -> str:
-        return datetime.now().strftime("%a, %d %b %Y %H:%M")
+        return datetime.now().strftime("%a, %d %b %Y %H:%M:%S")
 
     def as_bytes(self) -> bytes:
         return "\n".join([
