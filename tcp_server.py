@@ -15,12 +15,12 @@ class TcpServer:
             client_socket, address = server_socket.accept()
             print("client connected.")
 
-            request = client_socket.recv(4096)
+            request = HttpRequest(client_socket.recv(4096))
 
             with open("./resource/server/recv.txt", "wb") as f:
-                f.write(request)
+                f.write(request.as_bytes())
 
-            with open(os.path.join(DOCUMENT_ROOT, "send.txt"), "rb") as f:
+            with open(os.path.join(DOCUMENT_ROOT, request.header.path), "rb") as f:
                 response = HttpResponse(body=f.read())
 
             client_socket.send(response.as_bytes())
