@@ -28,6 +28,35 @@ class TcpServer:
         print("connection closed.")
 
 
+class HttpRequest:
+    def __init__(self, raw: bytes):
+        self.raw = raw.decode('utf-8')
+        s = self.raw.split("\n")
+        self.header = HttpRequestHeader(s[0])
+        self.body = s[1]
+
+    def __str__(self):
+        return self.raw
+
+    def as_bytes(self):
+        return self.raw.encode("utf-8")
+
+
+class HttpRequestHeader:
+    def __init__(self, raw: str):
+        self.raw = raw
+
+    @property
+    def path(self) -> str:
+        path = self.raw.split(" ")[1]
+        if path == "/":
+            return "index.html"
+        return path
+
+    def __str__(self):
+        return self.raw
+
+
 class HttpResponse:
     server_name = "Modoki"
     server_version = 1
