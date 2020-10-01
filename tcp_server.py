@@ -27,7 +27,7 @@ class TcpServer:
             with open("./resource/server/recv.txt", "wb") as f:
                 f.write(request.as_bytes())
 
-            with open(os.path.join(DOCUMENT_ROOT, request.header.path), "rb") as f:
+            with open(DOCUMENT_ROOT + request.header.path, "rb") as f:
                 response = HttpResponse(body=f.read())
 
             client_socket.send(response.as_bytes())
@@ -52,13 +52,13 @@ class HttpRequest:
 class HttpRequestHeader:
     def __init__(self, raw: str):
         self.raw = raw
+        self.method, self._path, self.protocol = self.raw.split(" ")
 
     @property
     def path(self) -> str:
-        path = self.raw.split(" ")[1]
-        if path == "/":
-            return "index.html"
-        return path
+        if self._path == "/":
+            return "/index.html"
+        return self._path
 
     def __str__(self):
         return self.raw
