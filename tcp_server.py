@@ -1,8 +1,15 @@
-import socket
 import os
+import socket
 from datetime import datetime
+from enum import Enum
 
 DOCUMENT_ROOT = "./resource/server"
+
+
+class ServerMessage(Enum):
+    WAITING_CONNECTION = "Waiting for connection from client."
+    CONNECTED = "Client connected."
+    CONNECTION_CLOSED = "Connection closed."
 
 
 class TcpServer:
@@ -10,10 +17,10 @@ class TcpServer:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
             server_socket.bind(("localhost", 8090))
             server_socket.listen(1)
-            print("waiting for connection from client.")
+            print(ServerMessage.WAITING_CONNECTION.value)
 
             client_socket, address = server_socket.accept()
-            print("client connected.")
+            print(ServerMessage.CONNECTED.value)
 
             request = HttpRequest(client_socket.recv(4096))
 
@@ -25,7 +32,7 @@ class TcpServer:
 
             client_socket.send(response.as_bytes())
 
-        print("connection closed.")
+        print(ServerMessage.CONNECTION_CLOSED.value)
 
 
 class HttpRequest:
