@@ -2,6 +2,7 @@ import os
 import socket
 from datetime import datetime
 from enum import Enum
+from request import HttpRequest
 
 DOCUMENT_ROOT = "./resource/server"
 
@@ -33,35 +34,6 @@ class TcpServer:
             client_socket.send(response.as_bytes())
 
         print(ServerMessage.CONNECTION_CLOSED.value)
-
-
-class HttpRequest:
-    def __init__(self, raw: bytes):
-        self.raw = raw.decode('utf-8')
-        s = self.raw.split("\n")
-        self.header = HttpRequestHeader(s[0])
-        self.body = s[1]
-
-    def __str__(self):
-        return self.raw
-
-    def as_bytes(self):
-        return self.raw.encode("utf-8")
-
-
-class HttpRequestHeader:
-    def __init__(self, raw: str):
-        self.raw = raw
-        self.method, self._path, self.protocol = self.raw.split(" ")
-
-    @property
-    def path(self) -> str:
-        if self._path == "/":
-            return "/index.html"
-        return self._path
-
-    def __str__(self):
-        return self.raw
 
 
 class HttpResponse:
