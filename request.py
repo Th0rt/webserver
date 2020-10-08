@@ -4,18 +4,21 @@ from typing import List
 class HttpRequest:
     def __init__(self, recv: bytes):
         self.recv = recv
-        raw_header, raw_body = recv.decode("utf-8").split("\n\n")
-
-        meta = raw_header.split("\n")
+        meta = recv.decode("utf-8").split("\n")
         self.request_line = HttpRequestLine(meta[0])
         self.header = HttpRequestHeader(meta[1:])
-        self.body = raw_body
 
     def __str__(self) -> str:
         return self.recv.decode("utf-8")
 
     def as_bytes(self) -> bytes:
         return self.recv
+
+    @property
+    def path(self):
+        if self.request_line.path == "/":
+            return "/index.html"
+        return self.request_line.path
 
 
 class HttpRequestLine:
@@ -27,8 +30,11 @@ class HttpRequestHeader:
     def __init__(self, raw: List[str]):
         self._data = {}
         for item in raw:
-            key, value = item.split(": ")
-            self._data[key] = value
+            try:
+                key, value = item.split(": ")
+                self._data[key] = value
+            except Exception:
+                print(item)
 
     @property
     def host(self):

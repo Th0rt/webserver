@@ -34,6 +34,14 @@ class TcpServer:
                 with open(DOCUMENT_ROOT + request.path, "rb") as f:
                     content = f.read()
 
+                ext = request.path.split(".")[-1]
+                if ext == "html":
+                    content_type = "text/html"
+                elif ext == "css":
+                    content_type = "text/css"
+                elif ext == "js":
+                    content_type = "text/javascript"
+
                 thread = HttpResponseThread(client_socket, HttpResponse(content, content_type))
                 thread.start()
 

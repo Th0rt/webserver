@@ -21,9 +21,12 @@ class HttpResponse:
     def __init__(self, body: bytes):
         self.header = HttpResponseHeader(self.server_name, self.server_version)
         self.body = body
+    def __init__(self, content: bytes, content_type: str):
+        self.header = HttpResponseHeader(content_type)
+        self.content = content
 
     def as_bytes(self) -> bytes:
-        return self.header.as_bytes() + b"\n\n" + self.body
+        return self.header.as_bytes() + b"\n\n" + self.content
 
 
 class HttpResponseHeader:
@@ -37,10 +40,6 @@ class HttpResponseHeader:
     @property
     def status_code(self) -> str:
         return "200 OK"
-
-    @property
-    def content_type(self) -> str:
-        return "text/html"
 
     @property
     def connection(self) -> str:
