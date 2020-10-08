@@ -39,6 +39,3 @@ class HttpRequestHeader:
     @property
     def host(self):
         return self._data["Host"]
-
-
-

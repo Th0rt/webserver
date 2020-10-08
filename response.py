@@ -15,12 +15,7 @@ class HttpRequestHeader:
 
 
 class HttpResponse:
-    server_name = "Modoki"
-    server_version = "1"
 
-    def __init__(self, body: bytes):
-        self.header = HttpResponseHeader(self.server_name, self.server_version)
-        self.body = body
     def __init__(self, content: bytes, content_type: str):
         self.header = HttpResponseHeader(content_type)
         self.content = content
@@ -30,8 +25,16 @@ class HttpResponse:
 
 
 class HttpResponseHeader:
-    def __init__(self, server_name: str, server_version: str):
-        self.server_name = f"{server_name}/{server_version}"
+    def __init__(self, content_type: str):
+        self.content_type = content_type
+
+    @property
+    def server_name(self):
+        return "Modoki"
+
+    @property
+    def server_version(self):
+        return "1"
 
     @property
     def http_method(self) -> str:
