@@ -23,7 +23,7 @@ class HttpRequest:
     def __init__(self, recv: bytes):
         self.recv = recv
 
-        r = recv.split(b"\n\n")
+        r = recv.split(b"\r\n\r\n")
         header = r[0]
         if len(r) == 1:
             body = None

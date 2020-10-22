@@ -1,10 +1,11 @@
 import os
 import socket
 from enum import Enum
+from socket import SOL_SOCKET, SO_REUSEADDR
 from threading import Thread
 
 from request import HttpRequest
-from response import HttpResponse
+from response import HttpResponse, HttpResponse404
 
 DOCUMENT_ROOT = "./resource/server"
 
@@ -18,6 +19,7 @@ class ServerMessage(Enum):
 class TcpServer:
     def main(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+            server_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
             server_socket.bind(("localhost", 8090))
             server_socket.listen(1)
             print(ServerMessage.WAITING_CONNECTION.value)
@@ -31,18 +33,27 @@ class TcpServer:
                 with open("./resource/server/recv.txt", "wb") as f:
                     f.write(request.as_bytes())
 
-                with open(DOCUMENT_ROOT + request.path, "rb") as f:
-                    content = f.read()
+                print(f"requested resouce is {DOCUMENT_ROOT + request.path}")
 
-                ext = request.path.split(".")[-1]
-                if ext == "html":
-                    content_type = "text/html"
-                elif ext == "css":
-                    content_type = "text/css"
-                elif ext == "js":
-                    content_type = "text/javascript"
+                try:
+                    with open(DOCUMENT_ROOT + request.path, "rb") as f:
+                        content = f.read()
+                except FileNotFoundError:
+                    thread = HttpResponseThread(client_socket, HttpResponse404())
 
-                thread = HttpResponseThread(client_socket, HttpResponse(content, content_type))
+                else:
+                    ext = request.path.split(".")[-1]
+                    if ext == "html":
+                        content_type = "text/html"
+                    elif ext == "css":
+                        content_type = "text/css"
+                    elif ext == "js":
+                        content_type = "text/javascript"
+
+                    thread = HttpResponseThread(
+                        client_socket, HttpResponse(content, content_type)
+                    )
+
                 thread.start()
 
 
