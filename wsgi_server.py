@@ -9,7 +9,6 @@ from request import HttpRequest
 from response import HttpResponse, HttpResponse404
 from wsgi_application import WSGIApplication
 
-DOCUMENT_ROOT = "./resource/server"
 
 
 class ServerMessage(Enum):
@@ -46,9 +45,6 @@ class WSGIServer:
         with open("./resource/server/recv.txt", "wb") as f:
             f.write(recv)
 
-        request = HttpRequest(recv)
-
-        print(f"requested resource is {DOCUMENT_ROOT} {request.path}")
         return HttpRequest(recv)
 
 
@@ -66,9 +62,23 @@ class HttpResponseThread(Thread):
         }
         self.status_code = b""
 
+    def get_env(self) -> dict:
+        env = dict()
+        env["REQUEST_METHOD"] = ""
+        env["SCRIPT_NAME"] = ""
+        env["PATH_INFO"] = self.request.request_line.path.decode('utf-8')
+        env["QUERY_STRING"] = ""
+        env["CONTENT_TYPE"] = ""
+        env["CONTENT_LENGTH"] = ""
+        env["SERVER_NAME"] = ""
+        env["SERVER_PORT"] = ""
+        env["SERVER_PROTOCOL"] = ""
+        env["HTTP_ Variables"] = ""
+        return env
+
     def create_response(self) -> bytes:
         self.response["body"] = b"".join(
-            self.app.application(env=self.request.header.as_dict(), start_response=self.start_response)
+            self.app.application(env=self.get_env(), start_response=self.start_response)
         )
         self.response["line"] = b"HTTP/1.1 " + self.status_code
         response_header = b"\n".join(
