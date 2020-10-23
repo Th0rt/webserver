@@ -10,7 +10,6 @@ from response import HttpResponse, HttpResponse404
 from wsgi_application import WSGIApplication
 
 
-
 class ServerMessage(Enum):
     WAITING_CONNECTION = "Waiting for connection from client."
     CONNECTED = "Client connected."
@@ -30,12 +29,11 @@ class WSGIServer:
             print(ServerMessage.WAITING_CONNECTION.value)
 
             while True:
-              client_socket, _ = server_socket.accept()
-              request = self.recv_request(client_socket)
+                client_socket, _ = server_socket.accept()
+                request = self.recv_request(client_socket)
 
-              # 今は固定のレスポンスを返す
-              thread = HttpResponseThread(client_socket, request, self.application)
-              thread.start()
+                thread = HttpResponseThread(client_socket, request, self.application)
+                thread.start()
 
     def recv_request(self, sock: socket):
         recv = sock.recv(4096)
@@ -55,18 +53,14 @@ class HttpResponseThread(Thread):
         self.app = wsgi_app
         self.env = {}
         self.request = request
-        self.response = {
-            "line": b"",
-            "header": {},
-            "body": b""
-        }
+        self.response = {"line": b"", "header": {}, "body": b""}
         self.status_code = b""
 
     def get_env(self) -> dict:
         env = dict()
         env["REQUEST_METHOD"] = ""
         env["SCRIPT_NAME"] = ""
-        env["PATH_INFO"] = self.request.request_line.path.decode('utf-8')
+        env["PATH_INFO"] = self.request.request_line.path.decode("utf-8")
         env["QUERY_STRING"] = ""
         env["CONTENT_TYPE"] = ""
         env["CONTENT_LENGTH"] = ""
@@ -101,7 +95,7 @@ class HttpResponseThread(Thread):
         print(ServerMessage.CONNECTION_CLOSED.value)
 
     def start_response(
-            self, response_line: bytes, response_headers: List[Tuple[bytes]], exc_info=None
+        self, response_line: bytes, response_headers: List[Tuple[bytes]], exc_info=None
     ):
         self.response["line"] = b"HTTP/1.1 " + response_line
         for key, value in response_headers:

@@ -8,7 +8,7 @@ MIME_TYPES = {
     ".txt": b"text/plain",
     ".html": b"text/html",
     ".css": b"text/css",
-    ".js": b"text/javascript"
+    ".js": b"text/javascript",
 }
 
 
@@ -19,7 +19,7 @@ class WSGIApplication:
     def application(self, env: dict, start_response: Callable) -> Iterable[bytes]:
         self.env = env
         content, content_type = self.get_content()
-        start_response(b'200 OK', [(b'Content-type', content_type)])
+        start_response(b"200 OK", [(b"Content-type", content_type)])
         return content
 
     def get_content(self) -> (List[bytes], bytes):
@@ -37,4 +37,3 @@ class WSGIApplication:
             content_type = MIME_TYPES[os.path.splitext(f.name)[-1]]
 
         return content, content_type
-
