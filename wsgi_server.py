@@ -31,12 +31,11 @@ class WSGIServer:
             print(ServerMessage.WAITING_CONNECTION.value)
 
             while True:
-              client_socket, _ = client_socket.accept()
+              client_socket, _ = server_socket.accept()
               request = self.recv_request(client_socket)
 
               # 今は固定のレスポンスを返す
-              response = self.create_response()
-              thread = HttpResponseThread(client_socket, response)
+              thread = HttpResponseThread(client_socket, request, self.application)
               thread.start()
 
     def recv_request(self, sock: socket):
@@ -52,44 +51,51 @@ class WSGIServer:
         print(f"requested resource is {DOCUMENT_ROOT} {request.path}")
         return HttpRequest(recv)
 
-    def start_response(
-        self, response_line: bytes, response_headers: List[Tuple[bytes]], exc_info=None
-    ):
-        self.status_code = response_line
-        for env in response_headers:
-            key, value = env
-            self.env[key] = value
+
+class HttpResponseThread(Thread):
+    def __init__(self, sock, request: HttpRequest, wsgi_app, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.socket = sock
+        self.app = wsgi_app
+        self.env = {}
+        self.request = request
+        self.response = {
+            "line": b"",
+            "header": {},
+            "body": b""
+        }
+        self.status_code = b""
 
     def create_response(self) -> bytes:
-        response_body = b"".join(
-            self.application.application(self.env, self.start_response)
+        self.response["body"] = b"".join(
+            self.app.application(env=self.request.header.as_dict(), start_response=self.start_response)
         )
-        response_line = b"HTTP/1.1 " + self.status_code
+        self.response["line"] = b"HTTP/1.1 " + self.status_code
         response_header = b"\n".join(
-            [b"%s: %s" % (key, value) for key, value in self.env.items()]
+            [b"%s: %s" % (key, value) for key, value in self.response["header"].items()]
         )
 
         response = b"\n".join(
             [
-                response_line,
+                self.response["line"],
                 response_header,
                 b"",
-                response_body,
+                self.response["body"],
             ]
         )
         return response
 
-
-class HttpResponseThread(Thread):
-    def __init__(self, sock, response: HttpResponse, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.socket = sock
-        self.response = response
-
     def run(self):
-        self.socket.send(self.response)
+        self.socket.send(self.create_response())
         self.socket.close()
         print(ServerMessage.CONNECTION_CLOSED.value)
+
+    def start_response(
+            self, response_line: bytes, response_headers: List[Tuple[bytes]], exc_info=None
+    ):
+        self.response["line"] = b"HTTP/1.1 " + response_line
+        for key, value in response_headers:
+            self.response["header"][key] = value
 
 
 if __name__ == "__main__":
