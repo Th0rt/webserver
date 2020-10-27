@@ -1,6 +1,6 @@
 import os
 from typing import Callable, Iterable, List
-import enum
+from datetime import datetime
 
 DOCUMENT_ROOT = "./resource/server"
 
@@ -30,10 +30,15 @@ class WSGIApplication:
         if path == "/":
             path = "/index.html"
 
-        print(path)
-
-        with open(DOCUMENT_ROOT + path, "rb") as f:
-            content = f.readlines()
-            content_type = MIME_TYPES[os.path.splitext(f.name)[-1]]
+        if path == "/now":
+            content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode('utf-8')]
+            content_type = MIME_TYPES[".txt"]
+        elif path == "/header":
+            content = [f"{key}: {value}\n".encode("utf-8") for key, value in self.env.items()]
+            content_type = MIME_TYPES[".txt"]
+        else:
+            with open(DOCUMENT_ROOT + path, "rb") as f:
+                content = f.readlines()
+                content_type = MIME_TYPES[os.path.splitext(f.name)[-1]]
 
         return content, content_type

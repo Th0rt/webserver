@@ -67,7 +67,6 @@ class HttpResponseThread(Thread):
         env["SERVER_NAME"] = ""
         env["SERVER_PORT"] = ""
         env["SERVER_PROTOCOL"] = ""
-        env["HTTP_ Variables"] = ""
         return env
 
     def create_response(self) -> bytes:
