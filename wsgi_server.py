@@ -3,10 +3,9 @@ import socket
 from enum import Enum
 from socket import SOL_SOCKET, SO_REUSEADDR
 from threading import Thread
-from typing import Callable, List, Tuple
+from typing import List, Tuple
 
 from request import HttpRequest
-from response import HttpResponse, HttpResponse404
 from wsgi_application import WSGIApplication
 
 
@@ -41,7 +40,7 @@ class WSGIServer:
 
         # 確認の為にRequestをファイルに書き出す
         with open("./resource/server/recv.txt", "wb") as f:
-            f.write(recv)
+            f.writelines([recv])
 
         return HttpRequest(recv)
 
@@ -58,15 +57,22 @@ class HttpResponseThread(Thread):
 
     def get_env(self) -> dict:
         env = dict()
-        env["REQUEST_METHOD"] = ""
-        env["SCRIPT_NAME"] = ""
-        env["PATH_INFO"] = self.request.request_line.path.decode("utf-8")
-        env["QUERY_STRING"] = ""
-        env["CONTENT_TYPE"] = ""
-        env["CONTENT_LENGTH"] = ""
-        env["SERVER_NAME"] = ""
-        env["SERVER_PORT"] = ""
-        env["SERVER_PROTOCOL"] = ""
+        env[b"REQUEST_METHOD"] = self.request.request_line.method
+        env[b"SCRIPT_NAME"] = b""
+        env[b"PATH_INFO"] = self.request.request_line.path
+        env[b"QUERY_STRING"] = b""
+
+        header = self.request.header.as_dict()
+        env[b"CONTENT_TYPE"] = header.pop("Content-type", b"")
+        env[b"CONTENT_LENGTH"] = header.pop("Content-length", b"")
+        env[b"SERVER_NAME"] = b""
+        env[b"SERVER_PORT"] = b""
+        env[b"SERVER_PROTOCOL"] = b""
+
+        # HTTP_Variables
+        for key, value in header.items():
+            env[b"HTTP_%s" % key] = value
+
         return env
 
     def create_response(self) -> bytes:
