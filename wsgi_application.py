@@ -30,9 +30,9 @@ class WSGIApplication:
         if path == "/":
             path = "/index.html"
 
-        if path == "/now":
-            content = [datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode('utf-8')]
-            content_type = MIME_TYPES[".txt"]
+        if path == "/now.html":
+            with open(os.path.join(DOCUMENT_ROOT, "now.html"), "wb") as f:
+                f.writelines([datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode('utf-8')])
         elif path == "/header.html":
             with open(os.path.join(DOCUMENT_ROOT, "header.html"), "wb") as f:
                 f.writelines([b"%s: %s<br>\n" % (key, value) for key, value in self.env.items()])
