@@ -1,5 +1,5 @@
 import os
-from typing import Callable, Iterable, List
+from typing import Callable, Iterable, List, Tuple
 from datetime import datetime
 
 DOCUMENT_ROOT = "./resource/server"
@@ -22,8 +22,8 @@ class WSGIApplication:
         start_response(b"200 OK", [(b"Content-type", content_type)])
         return content
 
-    def get_content(self) -> (List[bytes], bytes):
-        path = self.env[b"PATH_INFO"].decode("utf-8")
+    def get_content(self) -> Tuple[List[bytes], bytes]:
+        path = self.env["PATH_INFO"]
 
         print(f"requested resource is {DOCUMENT_ROOT} {path}")
 

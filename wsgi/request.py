@@ -1,4 +1,6 @@
-from typing import List
+from typing import List, Dict
+from io import BytesIO
+from ast import literal_eval
 
 
 class HttpRequestLine:
@@ -10,17 +12,37 @@ class HttpRequestLine:
 
 
 class HttpRequestHeader:
-    def __init__(self, raw: List[bytes]):
+    def __init__(self, raw: List[str]):
         self._data = {}
-        for item in raw:
-            key, value = item.split(b": ")
-            self._data[key] = value
+
+        x, y, _ = raw[0].split(" ")
+        self._data["REQUEST_METHOD"] = x
+        self._data["PATH_INFO"] = y
+        self._data["SCRIPT_NAME"] = ""
+        self._data["QUERY_STRING"] = ""
+        self._data["SERVER_NAME"] = ""
+        self._data["SERVER_PORT"] = ""
+        self._data["SERVER_PROTOCOL"] = ""
+
+        for item in raw[1:]:
+            i = item.split(": ", 1)
+            print(i)
+            key = i[0]
+            value = i[1]
+
+
+            if key == "Content-type":
+                self._data["CONTENT_TYPE"] = value
+            if key == "Content-length":
+                self._data["CONTENT_LENGTH"] = value
+            else:
+                self._data[f"HTTP_{key}"] = value
 
     @property
     def host(self):
-        return self._data[b"Host"]
+        return self._data["Host"]
 
-    def as_dict(self) -> dict:
+    def as_dict(self):
         return self._data
 
 
@@ -28,19 +50,10 @@ class HttpRequest:
     def __init__(self, recv: bytes):
         self.recv = recv
 
-        r = recv.split(b"\r\n\r\n")
-        header = r[0]
-        if len(r) == 1:
-            body = None
-        elif len(r) == 2:
-            body = r[1]
-        else:
-            raise Exception("Invalid Request.")
+        header, body = recv.split(b"\r\n\r\n", 1)
 
-        h = header.splitlines()
-        self.request_line = HttpRequestLine(h[0])
-        self.header = HttpRequestHeader(h[1:])
-        self.body = body
+        self.header = HttpRequestHeader(header.decode("utf-8").split("\r\n"))
+        self.body = BytesIO(body)
 
     def __str__(self) -> str:
         return self.recv.decode("utf-8")

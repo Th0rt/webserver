@@ -5,8 +5,8 @@ from socket import SOL_SOCKET, SO_REUSEADDR
 from threading import Thread
 from typing import List, Tuple, Dict
 
-from .request import HttpRequest
-from .wsgi_application import WSGIApplication
+from request import HttpRequest
+from wsgi_application import WSGIApplication
 
 
 class ServerMessage(Enum):
@@ -56,24 +56,7 @@ class HttpResponseThread(Thread):
         self.status_code = b""
 
     def get_env(self) -> dict:
-        env = dict()
-        env[b"REQUEST_METHOD"] = self.request.request_line.method
-        env[b"SCRIPT_NAME"] = b""
-        env[b"PATH_INFO"] = self.request.request_line.path
-        env[b"QUERY_STRING"] = b""
-
-        header = self.request.header.as_dict()
-        env[b"CONTENT_TYPE"] = header.pop("Content-type", b"")
-        env[b"CONTENT_LENGTH"] = header.pop("Content-length", b"")
-        env[b"SERVER_NAME"] = b""
-        env[b"SERVER_PORT"] = b""
-        env[b"SERVER_PROTOCOL"] = b""
-
-        # HTTP_Variables
-        for key, value in header.items():
-            env[b"HTTP_%s" % key] = value
-
-        return env
+        return self.request.header.as_dict()
 
     def create_response(self) -> bytes:
         self.response["body"] = b"".join(
