@@ -1,35 +1,23 @@
 from typing import List, Dict
 from io import BytesIO
-from ast import literal_eval
 
 
-class HttpRequestLine:
-    def __init__(self, raw: bytes):
-        r = raw.split(b" ")
-        self.method = r[0]
-        self.path = r[1]
-        self.protocol = r[2]
+class HttpRequest:
+    def __init__(self, recv: bytes):
+        self.recv = recv
 
-
-class HttpRequestHeader:
-    def __init__(self, raw: List[str]):
+        r = recv.split(b"\r\n\r\n", 1)
+        header = r[0].decode("utf-8").split("\r\n")
+        body = r[1]
         self._data = {}
 
-        x, y, _ = raw[0].split(" ")
-        self._data["REQUEST_METHOD"] = x
-        self._data["PATH_INFO"] = y
-        self._data["SCRIPT_NAME"] = ""
-        self._data["QUERY_STRING"] = ""
-        self._data["SERVER_NAME"] = ""
-        self._data["SERVER_PORT"] = ""
-        self._data["SERVER_PROTOCOL"] = ""
+        method, path, _ = header[0].split(" ")
+        self._data["REQUEST_METHOD"] = method
+        self._data["PATH_INFO"] = path
+        self._data["wsgi.input"] = BytesIO(body)
 
-        for item in raw[1:]:
-            i = item.split(": ", 1)
-            print(i)
-            key = i[0]
-            value = i[1]
-
+        for item in header[1:]:
+            key, value = item.split(": ", 1)
 
             if key == "Content-type":
                 self._data["CONTENT_TYPE"] = value
@@ -38,33 +26,23 @@ class HttpRequestHeader:
             else:
                 self._data[f"HTTP_{key}"] = value
 
-    @property
-    def host(self):
-        return self._data["Host"]
-
-    def as_dict(self):
-        return self._data
-
-
-class HttpRequest:
-    def __init__(self, recv: bytes):
-        self.recv = recv
-
-        header, body = recv.split(b"\r\n\r\n", 1)
-
-        self.header = HttpRequestHeader(header.decode("utf-8").split("\r\n"))
-        self.body = BytesIO(body)
+        self._data["SCRIPT_NAME"] = ""
+        self._data["QUERY_STRING"] = ""
+        self._data["SERVER_NAME"] = ""
+        self._data["SERVER_PORT"] = ""
+        self._data["SERVER_PROTOCOL"] = ""
 
     def __str__(self) -> str:
         return self.recv.decode("utf-8")
 
+    def get_data(self) -> Dict[str, str]:
+        return self._data
+
     def as_bytes(self) -> bytes:
         return self.recv
-
 
     @property
     def path(self):
         if self.request_line.path == "/":
             return "/index.html"
         return self.request_line.path
-

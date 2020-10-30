@@ -56,7 +56,7 @@ class HttpResponseThread(Thread):
         self.status_code = b""
 
     def get_env(self) -> dict:
-        return self.request.header.as_dict()
+        return self.request.get_data()
 
     def create_response(self) -> bytes:
         self.response["body"] = b"".join(
