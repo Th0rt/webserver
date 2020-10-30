@@ -1,0 +1,15 @@
+GET /favicon.ico HTTP/1.1
+Host: localhost:8090
+Connection: keep-alive
+Pragma: no-cache
+Cache-Control: no-cache
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36
+Accept: image/avif,image/webp,image/apng,image/*,*/*;q=0.8
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Dest: image
+Referer: http://localhost:8090/now.html
+Accept-Encoding: gzip, deflate, br
+Accept-Language: ja,en-US;q=0.9,en;q=0.8
+Cookie: Pycharm-76759981=369e6453-4399-414e-8772-2315b67b6555; csrftoken=fTa3U0yAI5GO3fqV8JXkN5Yl2bOVIGk4sKVGiK1o9ABpBbC2RCghY18VsJEqHJ7i; auth0.is.authenticated=true
+
