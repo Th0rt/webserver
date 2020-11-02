@@ -31,9 +31,9 @@ class HttpRequest:
         for item in header[1:]:
             key, value = item.split(": ", 1)
 
-            if key == "Content-type":
+            if key == "Content-Type":
                 self._data["CONTENT_TYPE"] = value
-            if key == "Content-length":
+            if key == "Content-Length":
                 self._data["CONTENT_LENGTH"] = value
             else:
                 self._data[f"HTTP_{key}"] = value
