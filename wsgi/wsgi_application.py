@@ -40,7 +40,6 @@ class WSGIApplication:
 
         return (content, content_type)
 
-
     def get_html(self) -> Tuple[List[bytes], bytes]:
         path = self.env["PATH_INFO"]
 
@@ -51,10 +50,14 @@ class WSGIApplication:
 
         if path == "/now.html":
             with open(os.path.join(DOCUMENT_ROOT, "now.html"), "wb") as f:
-                f.writelines([datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode('utf-8')])
+                f.writelines(
+                    [datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode("utf-8")]
+                )
         elif path == "/header.html":
             with open(os.path.join(DOCUMENT_ROOT, "header.html"), "wb") as f:
-                f.writelines([f"{key}: {value}<br>\n" for key, value in self.env.items()])
+                f.writelines(
+                    [f"{key}: {value}<br>\n" for key, value in self.env.items()]
+                )
         elif path == "/parameters":
             return ParametersView(self.env).dispath()
         with open(DOCUMENT_ROOT + path + ".html", "rb") as f:
@@ -62,6 +65,7 @@ class WSGIApplication:
             content_type = MIME_TYPES[os.path.splitext(f.name)[-1]]
 
         return content, content_type
+
 
 class ViewBase(ABC):
     def __init__(self, env: dict) -> None:
@@ -91,7 +95,6 @@ class IndexView(ViewBase):
         return (content, content_type)
 
 
-
 class ParametersView(ViewBase):
     def get(self, *args, **kwargs) -> Tuple[List[bytes], bytes]:
         qs = self.env["QUERY_STRING"].split("&")
@@ -103,4 +106,3 @@ class ParametersView(ViewBase):
         content = self.env["wsgi.input"].getvalue().replace(b"\r\n", b"<br>")
         content_type = MIME_TYPES[".html"]
         return (BytesIO(content), content_type)
-

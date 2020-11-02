@@ -14,7 +14,6 @@ class HttpRequest:
         # get request body
         self._data["wsgi.input"] = BytesIO(body)
 
-
         # get request line
         method, path, _ = header[0].split(" ")
 
@@ -23,7 +22,7 @@ class HttpRequest:
         if "?" in path:
             p = path.split("?", 1)
             self._data["PATH_INFO"] = p[0]
-            self._data["QUERY_STRING"]  = p[1]
+            self._data["QUERY_STRING"] = p[1]
         else:
             self._data["PATH_INFO"] = path
             self._data["QUERY_STRING"] = ""
