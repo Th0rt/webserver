@@ -56,13 +56,7 @@ class WSGIApplication:
             with open(os.path.join(DOCUMENT_ROOT, "header.html"), "wb") as f:
                 f.writelines([f"{key}: {value}<br>\n" for key, value in self.env.items()])
         elif path == "/parameters":
-            with open(os.path.join(DOCUMENT_ROOT, "parameters.html"), "w") as f:
-                if self.env["REQUEST_METHOD"] == "GET":
-                    content = self.env["QUERY_STRING"].split("&")
-                    f.write("<br>".join(content))
-                elif self.env["REQUEST_METHOD"] == "POST":
-                    content = self.env["wsgi.input"]
-                    f.write(b"<br>".join(content.getvalue().split(b"\r\n")))
+            return ParametersView(self.env).dispath()
         with open(DOCUMENT_ROOT + path + ".html", "rb") as f:
             content = f.readlines()
             content_type = MIME_TYPES[os.path.splitext(f.name)[-1]]
@@ -95,4 +89,18 @@ class IndexView(ViewBase):
             content_type = MIME_TYPES[".html"]
 
         return (content, content_type)
+
+
+
+class ParametersView(ViewBase):
+    def get(self, *args, **kwargs) -> Tuple[List[bytes], bytes]:
+        qs = self.env["QUERY_STRING"].split("&")
+        content = BytesIO("<br>".join(qs).encode("utf-8"))
+        content_type = MIME_TYPES[".html"]
+        return (content, content_type)
+
+    def post(self, *args, **kwargs) -> Tuple[List[bytes], bytes]:
+        content = self.env["wsgi.input"].getvalue().replace(b"\r\n", b"<br>")
+        content_type = MIME_TYPES[".html"]
+        return (BytesIO(content), content_type)
 
