@@ -1,7 +1,7 @@
 import os
 from typing import Callable, Iterable, List, Tuple
-from settings import DOCUMENT_ROOT, MIME_TYPES
-from route import Route
+from .settings import DOCUMENT_ROOT, MIME_TYPES
+from .route import Route
 
 
 class WSGIApplication:

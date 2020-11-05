@@ -5,7 +5,7 @@ from datetime import datetime
 from io import BytesIO
 from typing import List, Tuple
 
-from settings import DOCUMENT_ROOT, MIME_TYPES
+from .settings import DOCUMENT_ROOT, MIME_TYPES
 
 
 class ViewBase(ABC):

@@ -1,7 +1,6 @@
 from typing import Type
 
-import settings
-import views
+from . import settings, views
 
 
 class Route:

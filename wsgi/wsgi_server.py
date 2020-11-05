@@ -6,7 +6,7 @@ from threading import Thread
 from typing import List, Tuple, Dict
 
 from request import HttpRequest
-from wsgi_application import WSGIApplication
+from application.wsgi_application import WSGIApplication
 
 
 class ServerMessage(Enum):
