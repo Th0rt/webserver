@@ -49,23 +49,14 @@ class WSGIApplication:
         if path == "/":
             return IndexView(self.env).dispath()
 
-        if path == "/now.html":
-            with open(os.path.join(DOCUMENT_ROOT, "now.html"), "wb") as f:
-                f.writelines(
-                    [datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode("utf-8")]
-                )
-        elif path == "/header.html":
-            with open(os.path.join(DOCUMENT_ROOT, "header.html"), "wb") as f:
-                f.writelines(
-                    [f"{key}: {value}<br>\n" for key, value in self.env.items()]
-                )
+        if path == "/now":
+            return NowView(self.env).dispath()
+        elif path == "/header":
+            return HeaderView(self.env).dispath()
         elif path == "/parameters":
             return ParametersView(self.env).dispath()
-        with open(DOCUMENT_ROOT + path + ".html", "rb") as f:
-            content = f.readlines()
-            content_type = MIME_TYPES[os.path.splitext(f.name)[-1]]
 
-        return content, content_type
+        raise ValueError("route is unknown.")
 
 
 class ViewBase(ABC):
@@ -94,6 +85,18 @@ class IndexView(ViewBase):
             content_type = MIME_TYPES[".html"]
 
         return (content, content_type)
+
+
+class NowView(ViewBase):
+    def get(self, *args, **kwargs) -> Tuple[List[bytes], bytes]:
+        now = datetime.now().strftime("%Y-%m-%d %H:%M:%S").encode("utf-8")
+        return (BytesIO(now), MIME_TYPES[".html"])
+
+
+class HeaderView(ViewBase):
+    def get(self, *args, **kwargs) -> Tuple[List[bytes], bytes]:
+        content = "<br>".join([f"{key}: {value}" for key, value in self.env.items()])
+        return (BytesIO(content.encode("utf-8")), MIME_TYPES[".html"])
 
 
 class ParametersView(ViewBase):
