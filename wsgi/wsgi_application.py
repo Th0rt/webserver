@@ -81,7 +81,7 @@ class ViewBase(ABC):
             raise ValueError(f'{self.env["REQUEST_METHOD"]} is not allowed.')
 
     def get(self, *args, **kwargs) -> Tuple[List[bytes], bytes]:
-        raise ValueError("POST is not allowed.")
+        raise ValueError("GET is not allowed.")
 
     def post(self, *args, **kwargs) -> Tuple[List[bytes], bytes]:
         raise ValueError("POST is not allowed.")
