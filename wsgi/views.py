@@ -1,17 +1,18 @@
+import os
 from abc import ABC
 from cgi import FieldStorage
 from datetime import datetime
 from io import BytesIO
 from typing import List, Tuple
 
-from .settings import DOCUMENT_ROOT, MIME_TYPES
+from settings import DOCUMENT_ROOT, MIME_TYPES
 
 
 class ViewBase(ABC):
     def __init__(self, env: dict) -> None:
         self.env = env
 
-    def dispath(self, *args, **kwargs) -> callable:
+    def get_response(self, *args, **kwargs) -> callable:
         if self.env["REQUEST_METHOD"] == "GET":
             return self.get(args, kwargs)
         elif self.env["REQUEST_METHOD"] == "POST":

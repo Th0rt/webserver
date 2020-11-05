@@ -1,7 +1,7 @@
 import os
 from typing import Callable, Iterable, List, Tuple
-from .settings import DOCUMENT_ROOT, MIME_TYPES
-from .route import Route
+from settings import DOCUMENT_ROOT, MIME_TYPES
+from route import Route
 
 
 class WSGIApplication:
@@ -32,4 +32,4 @@ class WSGIApplication:
 
     def get_html(self) -> Tuple[List[bytes], bytes]:
         view_cls = Route(self.env["PATH_INFO"]).get_view()
-        return view_cls(self.env).dispatch()
+        return view_cls(self.env).get_response()
