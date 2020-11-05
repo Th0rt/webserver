@@ -10,7 +10,7 @@ class Route:
             "/": views.IndexView,
             "/now": views.NowView,
             "/header": views.HeaderView,
-            "/paramaters": views.ParametersView
+            "/parameters": views.ParametersView
         }
         print(f"requested resource is {settings.DOCUMENT_ROOT} {self.path}")
 
