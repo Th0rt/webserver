@@ -1,14 +1,15 @@
 import os
-from typing import Callable, Iterable, List, Tuple
+from abc import ABC
+from cgi import FieldStorage
 from datetime import datetime
-from abc import ABC, abstractmethod
 from io import BytesIO
+from typing import Callable, Iterable, List, Tuple
 
 DOCUMENT_ROOT = "./resource/server"
 
 MIME_TYPES = {
     ".txt": b"text/plain",
-    ".html": b"text/html",
+    ".html": b"text/html; charset=UTF-8",
     ".css": b"text/css",
     ".js": b"text/javascript",
 }
@@ -103,6 +104,14 @@ class ParametersView(ViewBase):
         return (content, content_type)
 
     def post(self, *args, **kwargs) -> Tuple[List[bytes], bytes]:
-        content = self.env["wsgi.input"].getvalue().replace(b"\r\n", b"<br>")
-        content_type = MIME_TYPES[".html"]
-        return (BytesIO(content), content_type)
+        headers = {
+            "content-type": self.env["CONTENT_TYPE"],
+            "content-length": self.env["CONTENT_LENGTH"],
+        }
+        fs = FieldStorage(
+            fp=self.env["wsgi.input"],
+            headers=headers,
+            environ={"REQUEST_METHOD": "POST"},
+        )
+        res = "<br>".join([f"{f.name}: {f.value}" for f in fs.list])
+        return (BytesIO(res.encode("utf-8")), MIME_TYPES[".html"])
