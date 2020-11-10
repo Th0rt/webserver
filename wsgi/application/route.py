@@ -18,4 +18,4 @@ class Route:
         try:
             return self.route[self.path]
         except KeyError:
-            raise ValueError("path is unknown.")
+            raise ValueError()

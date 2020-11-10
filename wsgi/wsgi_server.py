@@ -62,7 +62,6 @@ class HttpResponseThread(Thread):
         self.response["body"] = b"".join(
             self.app.application(env=self.get_env(), start_response=self.start_response)
         )
-        self.response["line"] = b"HTTP/1.1 " + self.status_code
         response_header = b"\n".join(
             [b"%s: %s" % (key, value) for key, value in self.response["header"].items()]
         )

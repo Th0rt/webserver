@@ -1,18 +1,20 @@
 import os
-from typing import Callable, Iterable, List, Tuple
-from .settings import DOCUMENT_ROOT, MIME_TYPES
-from .route import Route
+from typing import Callable, Iterable
+
 from .request import HttpRequest
+from .response import HttpResponse, HttpResponse404, HttpResponseBase
+from .route import Route
+from .settings import DOCUMENT_ROOT, MIME_TYPES
 
 
 class WSGIApplication:
     def application(self, env: dict, start_response: Callable) -> Iterable[bytes]:
         self.request = HttpRequest(env)
-        content, content_type = self.get_content()
-        start_response(b"200 OK", [(b"Content-type", content_type)])
+        status_code, content, content_type = self.get_content().output()
+        start_response(status_code, [(b"Content-type", content_type)])
         return content
 
-    def get_content(self):
+    def get_content(self) -> HttpResponseBase:
         filename, ext = os.path.splitext(self.request.path)
         print(filename, ext)
 
@@ -21,13 +23,19 @@ class WSGIApplication:
         else:
             return self.get_static(filename + ext)
 
-    def get_static(self, filename: str) -> Tuple[Iterable[bytes], bytes]:
-        with open(DOCUMENT_ROOT + filename, "rb") as f:
-            content = f.readlines()
-            content_type = MIME_TYPES[os.path.splitext(f.name)[-1]]
+    def get_static(self, filename: str) -> HttpResponseBase:
+        try:
+            with open(DOCUMENT_ROOT + filename, "rb") as f:
+                content = f.readlines()
+                content_type = MIME_TYPES[os.path.splitext(f.name)[-1]]
+                return HttpResponse(content, content_type)
+        except FileNotFoundError:
+            print("not found!")
+            return HttpResponse404()
 
-        return (content, content_type)
-
-    def get_html(self) -> Tuple[Iterable[bytes], bytes]:
-        view_cls = Route(self.request.path).get_view()
-        return view_cls(self.request).get_response()
+    def get_html(self) -> HttpResponseBase:
+        try:
+            view_cls = Route(self.request.path).get_view()
+            return view_cls(self.request).get_response()
+        except ValueError:
+            return HttpResponse404()
