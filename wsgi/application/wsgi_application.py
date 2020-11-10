@@ -24,14 +24,13 @@ class WSGIApplication:
             return self.get_static(filename + ext)
 
     def get_static(self, filename: str) -> HttpResponseBase:
-        try:
-            with open(DOCUMENT_ROOT + filename, "rb") as f:
-                content = f.readlines()
-                content_type = MIME_TYPES[os.path.splitext(f.name)[-1]]
-                return HttpResponse(content, content_type)
-        except FileNotFoundError:
-            print("not found!")
+        if not os.path.exists(DOCUMENT_ROOT + filename):
             return HttpResponse404()
+
+        with open(DOCUMENT_ROOT + filename, "rb") as f:
+            content = f.readlines()
+            content_type = MIME_TYPES[os.path.splitext(f.name)[-1]]
+            return HttpResponse(content, content_type)
 
     def get_html(self) -> HttpResponseBase:
         try:
