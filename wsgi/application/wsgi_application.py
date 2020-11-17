@@ -3,7 +3,7 @@ from typing import Callable, Iterable
 
 from .request import HttpRequest
 from .response import HttpResponse, HttpResponse404, HttpResponseBase
-from .route import Route
+from .route import ROUTE
 from .settings import DOCUMENT_ROOT, MIME_TYPES
 
 
@@ -34,7 +34,7 @@ class WSGIApplication:
 
     def get_html(self) -> HttpResponseBase:
         try:
-            view_cls = Route(self.request.path).get_view()
-            return view_cls(self.request).get_response()
-        except ValueError:
+            view_cls = ROUTE[self.request.path]
+        except KeyError:
             return HttpResponse404()
+        return view_cls(self.request).get_response()
