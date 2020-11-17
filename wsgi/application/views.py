@@ -4,7 +4,7 @@ from datetime import datetime
 from io import BytesIO
 
 from .request import HttpRequest
-from .response import HttpResponse, HttpResponseBase
+from .response import HttpResponse, HttpResponseBase, HttpResponse405
 from .settings import DOCUMENT_ROOT, MIME_TYPES
 
 
@@ -18,13 +18,13 @@ class ViewBase(ABC):
         elif self.request.request_method == "POST":
             return self.post(args, kwargs)
         else:
-            raise ValueError(f"{self.request.request_method} is not allowed.")
+            return HttpResponse405()
 
     def get(self, *args, **kwargs) -> HttpResponseBase:
-        raise ValueError("GET is not allowed.")
+        return HttpResponse405()
 
     def post(self, *args, **kwargs) -> HttpResponseBase:
-        raise ValueError("POST is not allowed.")
+        return HttpResponse405()
 
 
 class IndexView(ViewBase):

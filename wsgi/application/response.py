@@ -29,3 +29,8 @@ class HttpResponse(HttpResponseBase):
 class HttpResponse404(HttpResponseBase):
     def __init__(self) -> None:
         super().__init__([b"404 Not Found"], "404", MIME_TYPES[".html"])
+
+
+class HttpResponse405(HttpResponseBase):
+    def __init__(self) -> None:
+        super().__init__([b"405 Not Allowed"], "405", MIME_TYPES[".html"])
