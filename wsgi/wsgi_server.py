@@ -82,7 +82,7 @@ class HttpResponseThread(Thread):
         print(ServerMessage.CONNECTION_CLOSED.value)
 
     def start_response(
-        self, response_line: bytes, response_headers: List[Tuple[bytes]], exc_info=None
+        self, response_line: bytes, response_headers: List[Tuple[bytes, bytes]], exc_info=None
     ):
         self.response["line"] = b"HTTP/1.1 " + response_line
         for key, value in response_headers:
