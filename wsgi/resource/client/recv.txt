@@ -1,0 +1,22 @@
+HTTP/ 1.1 200 OK
+Server: Modoki / 0.1
+Date: Thu, 24 Sep 2020 06: 24:35 GMT
+Content - Type: text / html
+Connection: Close
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Welcome to tcp_server!</title>
+<style>
+    body {
+        width: 35em;
+        margin: 0 auto;
+        font-family: Tahoma, Verdana, Arial, sans-serif;
+    }
+</style>
+</head>
+<body>
+<h1>Welcome to tcp_server!</h1>
+</body>
+</html>

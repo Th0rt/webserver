@@ -1,5 +1,6 @@
 from typing import List
 
+
 class HttpRequestLine:
     def __init__(self, raw: bytes):
         r = raw.split(b" ")
@@ -18,6 +19,10 @@ class HttpRequestHeader:
     @property
     def host(self):
         return self._data[b"Host"]
+
+    def as_dict(self) -> dict:
+        return self._data
+
 
 class HttpRequest:
     def __init__(self, recv: bytes):
