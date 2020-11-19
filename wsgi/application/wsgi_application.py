@@ -10,8 +10,8 @@ from .settings import DOCUMENT_ROOT, MIME_TYPES
 class WSGIApplication:
     def application(self, env: dict, start_response: Callable) -> Iterable[bytes]:
         self.request = HttpRequest(env)
-        status_code, content, content_type = self.get_content().output()
-        start_response(status_code, [(b"Content-type", content_type)])
+        status_code, header, content = self.get_content().output()
+        start_response(status_code, header)
         return content
 
     def get_content(self) -> HttpResponseBase:
