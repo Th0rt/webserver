@@ -1,5 +1,3 @@
-from typing import Type
-
 from . import views
 
 ROUTE = {
@@ -7,4 +5,5 @@ ROUTE = {
     "/now": views.NowView,
     "/header": views.HeaderView,
     "/parameters": views.ParametersView,
+    "/setcookie": views.SetCookieView
 }

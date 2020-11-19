@@ -57,3 +57,10 @@ class ParametersView(ViewBase):
     def post(self, *args, **kwargs) -> HttpResponseBase:
         content = BytesIO(str(self.request.request_body).encode("utf-8"))
         return HttpResponse(content, MIME_TYPES[".html"])
+
+class SetCookieView(ViewBase):
+    def get(self, *args, **kwargs) -> HttpResponseBase:
+        content = BytesIO(str("Check Cookie!").encode("utf-8"))
+        content_type = MIME_TYPES[".html"]
+        cookie = "hoge=fuga"
+        return HttpResponse(content, content_type, header={"Set-Cookie": cookie})
