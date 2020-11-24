@@ -1,6 +1,5 @@
-from typing import Dict, Any
 from cgi import FieldStorage
-from io import BytesIO
+from typing import Any, Dict, Optional
 
 
 class HttpRequest:
@@ -19,6 +18,15 @@ class HttpRequest:
     def query_string(self) -> Dict[str, str]:
         qs = self.env["QUERY_STRING"].split("&")
         return {q[0]: q[2] for q in qs}
+
+    @property
+    def cookie(self) -> Optional[Dict[str, str]]:
+        cookie = {}
+        if "HTTP_Cookie" in self.env:
+            for c in self.env["HTTP_Cookie"].split("; "):
+                key, value = c.split("=")
+                cookie[key] = value
+        return cookie
 
     @property
     def request_body(self) -> Dict[str, str]:

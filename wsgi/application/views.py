@@ -1,10 +1,12 @@
 import os
+import random
+import string
 from abc import ABC
 from datetime import datetime
 from io import BytesIO
 
 from .request import HttpRequest
-from .response import HttpResponse, HttpResponseBase, HttpResponse405
+from .response import HttpResponse, HttpResponse405, HttpResponseBase
 from .settings import DOCUMENT_ROOT, MIME_TYPES
 
 
@@ -59,8 +61,40 @@ class ParametersView(ViewBase):
         return HttpResponse(content, MIME_TYPES[".html"])
 
 class SetCookieView(ViewBase):
+    cookie_value = {}
+    content = """
+<html>
+  <head>
+    <meta httpequiv="ContentType" content="text/html;charset=utf-8" />
+    <title>テストフォーム</title>
+  </head>
+  <body>
+    こんにちは、{username}さん。
+    <form action="http://localhost:8090/setcookie" method="post" enctype="multipart/form-data">
+      テキストボックス：<input type="text" name="username" /><br />
+      <input type="submit" name="submit_name" value="送るよ!" />
+    </form>
+  </body>
+</html>
+"""
+
+    def get_content(self, username: str) -> str:
+        return self.content.replace("{username}", username)
+
     def get(self, *args, **kwargs) -> HttpResponseBase:
-        content = BytesIO(str("Check Cookie!").encode("utf-8"))
-        content_type = MIME_TYPES[".html"]
-        cookie = "hoge=fuga"
-        return HttpResponse(content, content_type, header={"Set-Cookie": cookie})
+        try:
+            user_id = self.request.cookie["user_id"]
+            username = self.cookie_value[user_id]
+        except KeyError:
+            username = "名無し"
+
+        content = BytesIO(self.get_content(username).encode("utf-8"))
+        return HttpResponse(content, MIME_TYPES[".html"])
+
+    def post(self, *args, **kwargs) -> HttpResponseBase:
+        key = ''.join([random.choice(string.ascii_letters + string.digits) for i in range(12)])
+        username = self.request.request_body.get("username", "名無し")
+        self.cookie_value[key] = username
+
+        content = BytesIO(self.get_content(username).encode("utf-8"))
+        return HttpResponse(content, MIME_TYPES[".html"], cookie={"user_id": key})
