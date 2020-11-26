@@ -5,9 +5,12 @@ from .request import HttpRequest
 from .response import HttpResponse, HttpResponse404, HttpResponseBase
 from .route import ROUTE
 from .settings import DOCUMENT_ROOT, MIME_TYPES
+from .middlewares import SessionMiddleware
 
 
 class WSGIApplication:
+    MIDDLEWARES = [SessionMiddleware]
+
     def application(self, env: dict, start_response: Callable) -> Iterable[bytes]:
         self.request = HttpRequest(env)
         status_code, header, content = self.get_content().output()
@@ -34,7 +37,11 @@ class WSGIApplication:
 
     def get_html(self) -> HttpResponseBase:
         try:
-            view_cls = ROUTE[self.request.path]
+            view = ROUTE[self.request.path](self.request)
         except KeyError:
             return HttpResponse404()
-        return view_cls(self.request).get_response()
+
+        for middleware in self.MIDDLEWARES:
+            view = middleware(view)
+
+        return view.get_response(self.request)

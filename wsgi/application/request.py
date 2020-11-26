@@ -1,10 +1,11 @@
 from cgi import FieldStorage
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 
 class HttpRequest:
-    def __init__(self, env: Dict[str, Any]) -> None:
+    def __init__(self, env: Dict[str, Any], session: Dict[str, str] = {}) -> None:
         self.env = env
+        self.session = session
 
     @property
     def path(self) -> str:
@@ -20,7 +21,7 @@ class HttpRequest:
         return {q[0]: q[2] for q in qs}
 
     @property
-    def cookie(self) -> Optional[Dict[str, str]]:
+    def cookie(self) -> Dict[str, str]:
         cookie = {}
         if "HTTP_Cookie" in self.env:
             for c in self.env["HTTP_Cookie"].split("; "):

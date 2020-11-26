@@ -1,6 +1,4 @@
 import os
-import random
-import string
 from abc import ABC
 from datetime import datetime
 from io import BytesIO
@@ -60,6 +58,7 @@ class ParametersView(ViewBase):
         content = BytesIO(str(self.request.request_body).encode("utf-8"))
         return HttpResponse(content, MIME_TYPES[".html"])
 
+
 class SetCookieView(ViewBase):
     cookie_value = {}
     content = """
@@ -92,9 +91,10 @@ class SetCookieView(ViewBase):
         return HttpResponse(content, MIME_TYPES[".html"])
 
     def post(self, *args, **kwargs) -> HttpResponseBase:
-        key = ''.join([random.choice(string.ascii_letters + string.digits) for i in range(12)])
-        username = self.request.request_body.get("username", "名無し")
-        self.cookie_value[key] = username
+        username = self.request.request_body.get("username", "")
+        self.request.session["username"] = username
+
+        print(self.request.session)
 
         content = BytesIO(self.get_content(username).encode("utf-8"))
-        return HttpResponse(content, MIME_TYPES[".html"], cookie={"user_id": key})
+        return HttpResponse(content, MIME_TYPES[".html"])
